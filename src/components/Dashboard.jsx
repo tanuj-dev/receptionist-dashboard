@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react'
+import logo from '../assets/logo.png'
 import { fetchBusinesses, fetchStats, fetchBookings, getClientBiz } from '../api'
 import Sidebar from './Sidebar'
 import StatsCards from './StatsCards'
 import BookingsTable from './BookingsTable'
 import ScheduleManager from './ScheduleManager'
 import CreateBusinessModal from './CreateBusinessModal'
+import CallModeSettings from './CallModeSettings'
 
 export default function Dashboard({ role, onLogout }) {
   const isAdmin   = role === 'admin'
@@ -18,7 +20,7 @@ export default function Dashboard({ role, onLogout }) {
   const [loading,      setLoading]     = useState(true)
   const [search,       setSearch]      = useState('')
   const [statusFilter, setStatusFilter]= useState('')
-  const [clientView,      setClientView]      = useState('bookings') // 'bookings' | 'schedule'
+  const [clientView,      setClientView]      = useState('bookings') // 'bookings' | 'schedule' | 'callmode'
   const [showCreateModal, setShowCreateModal] = useState(false)
 
   // Admin: load businesses list for sidebar
@@ -68,8 +70,11 @@ export default function Dashboard({ role, onLogout }) {
       {!isAdmin && (
         <aside className="sidebar">
           <div className="sidebar-header">
-            <h1>🏢 {clientBiz?.name}</h1>
-            <p>Business Dashboard</p>
+            <img src={logo} alt="RingReply" />
+            <div className="sidebar-header-text">
+              <h1>{clientBiz?.name}</h1>
+              <p>Business Dashboard</p>
+            </div>
           </div>
           <div className="biz-list" style={{ marginTop: 8 }}>
             <button
@@ -83,6 +88,12 @@ export default function Dashboard({ role, onLogout }) {
               onClick={() => setClientView('schedule')}
             >
               <span>⚙️</span> Schedule &amp; Leaves
+            </button>
+            <button
+              className={`biz-item${clientView === 'callmode' ? ' active' : ''}`}
+              onClick={() => setClientView('callmode')}
+            >
+              <span>📞</span> Call Mode
             </button>
           </div>
           <div style={{ flex: 1 }} />
@@ -135,8 +146,10 @@ export default function Dashboard({ role, onLogout }) {
         </div>
 
         <div className="content">
-          {/* Schedule view — client only */}
-          {!isAdmin && clientView === 'schedule' ? (
+          {/* Call Mode view — client only */}
+          {!isAdmin && clientView === 'callmode' ? (
+            <CallModeSettings />
+          ) : !isAdmin && clientView === 'schedule' ? (
             <ScheduleManager />
           ) : (
             <>

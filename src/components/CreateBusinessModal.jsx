@@ -7,11 +7,13 @@ const BIZ_TYPES = ['Dental','Salon','Barber','Clinic','Physiotherapy','Spa','Gym
 
 export default function CreateBusinessModal({ onClose, onCreated }) {
   // Basic info
-  const [name,     setName]     = useState('')
-  const [bizId,    setBizId]    = useState('')
-  const [bizType,  setBizType]  = useState('dental')
-  const [email,    setEmail]    = useState('')
-  const [password, setPassword] = useState('')
+  const [name,          setName]         = useState('')
+  const [bizId,         setBizId]        = useState('')
+  const [bizType,       setBizType]      = useState('dental')
+  const [email,         setEmail]        = useState('')
+  const [password,      setPassword]     = useState('')
+  const [twilioNumber,  setTwilioNumber] = useState('')
+  const [callMode,      setCallMode]     = useState('always')
 
   // Services
   const [services, setServices] = useState([''])
@@ -54,6 +56,7 @@ export default function CreateBusinessModal({ onClose, onCreated }) {
     if (cleanServices.length === 0) return setError('Add at least one service.')
     if (workingDays.length === 0)   return setError('Select at least one working day.')
     if (!password.trim())       return setError('Client dashboard password is required.')
+    if (!twilioNumber.trim())   return setError('Twilio number is required.')
     if (startTime >= endTime)   return setError('Opening time must be before closing time.')
 
     setSaving(true)
@@ -69,6 +72,8 @@ export default function CreateBusinessModal({ onClose, onCreated }) {
         slot_duration:   slotDuration,
         contact_email:   email.trim(),
         client_password: password.trim(),
+        twilio_number:   twilioNumber.trim(),
+        call_mode:       callMode,
       })
       if (res.error) { setError(res.error); return }
       onCreated(res)   // pass back {id, name} so sidebar can refresh
@@ -145,6 +150,30 @@ export default function CreateBusinessModal({ onClose, onCreated }) {
                   value={password} onChange={e => setPassword(e.target.value)}
                   className="sched-input"
                 />
+              </div>
+
+              <div className="sched-section">
+                <label className="sched-label">Twilio Number *</label>
+                <input
+                  type="text" placeholder="e.g. +12394238893"
+                  value={twilioNumber} onChange={e => setTwilioNumber(e.target.value)}
+                  className="sched-input"
+                />
+                <span className="field-hint">The Twilio number assigned to this business. Required for AI to receive calls.</span>
+              </div>
+
+              <div className="sched-section">
+                <label className="sched-label">Call Mode</label>
+                <select value={callMode} onChange={e => setCallMode(e.target.value)} className="sched-input">
+                  <option value="always">Always Forward — AI answers all calls</option>
+                  <option value="ring_first">Ring First — phone rings, then AI answers</option>
+                </select>
+                <span className="field-hint">
+                  {callMode === 'always'
+                    ? `Dial code: *21*${twilioNumber || '[twilio_number]'}#`
+                    : `Dial: *61*${twilioNumber || '[twilio_number]'}# (no answer) + *67*${twilioNumber || '[twilio_number]'}# (busy)`
+                  }
+                </span>
               </div>
             </div>
 

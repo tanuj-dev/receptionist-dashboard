@@ -1,32 +1,13 @@
 import { useState } from 'react'
-import { adminLogin, clientLogin, fetchBusinesses } from '../api'
+import { adminLogin, clientLogin } from '../api'
+import logo from '../assets/logo.png'
 
 export default function Login({ onLogin }) {
-  const [mode,       setMode]       = useState('choice')  // choice | admin | client
-  const [businesses, setBusinesses] = useState([])
-  const [bizId,      setBizId]      = useState('')
-  const [password,   setPassword]   = useState('')
-  const [error,      setError]      = useState('')
-  const [loading,    setLoading]    = useState(false)
-
-  async function goAdmin() {
-    setMode('admin'); setError('')
-  }
-
-  async function goClient() {
-    setLoading(true)
-    try {
-      // Fetch business list for the dropdown
-      // We call a public endpoint — businesses list is not sensitive (just names)
-      const res = await fetch('/admin/api/businesses', {
-        headers: { 'Authorization': 'Bearer invalid' }
-      })
-      // We expect 401 but we need names — let's use a public endpoint
-      // Actually let's just hardcode or use client login directly
-    } catch (_) {}
-    setLoading(false)
-    setMode('client'); setError('')
-  }
+  const [mode,     setMode]     = useState('choice')
+  const [bizId,    setBizId]    = useState('')
+  const [password, setPassword] = useState('')
+  const [error,    setError]    = useState('')
+  const [loading,  setLoading]  = useState(false)
 
   async function handleAdminSubmit(e) {
     e.preventDefault(); setError(''); setLoading(true)
@@ -46,39 +27,55 @@ export default function Login({ onLogin }) {
     finally { setLoading(false) }
   }
 
-  // ── Choice screen ────────────────────────────────────────────────────
+  const Logo = () => (
+    <div className="login-logo">
+      <img src={logo} alt="RingReply" />
+    </div>
+  )
+
+  // ── Choice screen ──
   if (mode === 'choice') return (
     <div className="login-page">
       <div className="login-card">
-        <div className="login-logo">🤖</div>
-        <h1>AI Receptionist</h1>
-        <p>Who are you signing in as?</p>
+        <Logo />
+        <h1>RingReply</h1>
+        <p>AI Receptionist Platform — Sign in to continue</p>
 
-        <div style={{ display: 'flex', gap: 12, marginTop: 28 }}>
-          <button
-            className="btn-login"
-            style={{ background: '#11418A' }}
-            onClick={goAdmin}
-          >
-            🔐 Admin
+        <div className="choice-grid">
+          <button className="choice-btn" onClick={() => { setMode('admin'); setError('') }}>
+            <div className="choice-btn-icon" style={{ background: 'linear-gradient(135deg, #1e3a8a, #3b82f6)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2z" fill="white" opacity="0.9"/>
+                <path d="M9 12l2 2 4-4" stroke="#1e3a8a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div className="choice-btn-text">
+              <h3>Admin</h3>
+              <p>Manage all businesses & settings</p>
+            </div>
           </button>
-          <button
-            className="btn-login"
-            style={{ background: '#0d9488' }}
-            onClick={() => { setMode('client'); setError('') }}
-          >
-            🏢 Business Owner
+          <button className="choice-btn" onClick={() => { setMode('client'); setError('') }}>
+            <div className="choice-btn-icon" style={{ background: 'linear-gradient(135deg, #0d9488, #06b6d4)' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" fill="white" opacity="0.9"/>
+                <path d="M9 22V12h6v10" stroke="#0d9488" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <div className="choice-btn-text">
+              <h3>Business Owner</h3>
+              <p>View bookings & manage schedule</p>
+            </div>
           </button>
         </div>
       </div>
     </div>
   )
 
-  // ── Admin login ───────────────────────────────────────────────────────
+  // ── Admin login ──
   if (mode === 'admin') return (
     <div className="login-page">
       <div className="login-card">
-        <div className="login-logo">🔐</div>
+        <Logo />
         <h1>Admin Login</h1>
         <p>Full access to all businesses</p>
         <form onSubmit={handleAdminSubmit}>
@@ -95,7 +92,7 @@ export default function Login({ onLogin }) {
           </button>
           {error && <p className="error-msg">{error}</p>}
         </form>
-        <p style={{ textAlign:'center', marginTop:16, fontSize:13, color:'#94a3b8', cursor:'pointer' }}
+        <p style={{ textAlign:'center', marginTop:20, fontSize:13, color:'#94a3b8', cursor:'pointer' }}
            onClick={() => { setMode('choice'); setPassword(''); setError('') }}>
           ← Back
         </p>
@@ -103,11 +100,11 @@ export default function Login({ onLogin }) {
     </div>
   )
 
-  // ── Client login ──────────────────────────────────────────────────────
+  // ── Client login ──
   return (
     <div className="login-page">
       <div className="login-card">
-        <div className="login-logo">🏢</div>
+        <Logo />
         <h1>Business Login</h1>
         <p>Access your booking dashboard</p>
         <form onSubmit={handleClientSubmit}>
@@ -129,7 +126,7 @@ export default function Login({ onLogin }) {
           </div>
           <button
             className="btn-login"
-            style={{ background: '#0d9488' }}
+            style={{ background: 'linear-gradient(135deg, #0d9488, #0891b2)' }}
             type="submit"
             disabled={loading}
           >
@@ -137,7 +134,7 @@ export default function Login({ onLogin }) {
           </button>
           {error && <p className="error-msg">{error}</p>}
         </form>
-        <p style={{ textAlign:'center', marginTop:16, fontSize:13, color:'#94a3b8', cursor:'pointer' }}
+        <p style={{ textAlign:'center', marginTop:20, fontSize:13, color:'#94a3b8', cursor:'pointer' }}
            onClick={() => { setMode('choice'); setPassword(''); setBizId(''); setError('') }}>
           ← Back
         </p>

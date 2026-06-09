@@ -141,14 +141,17 @@ export default function ScheduleManager() {
           </div>
 
           {/* Preview */}
-          {startTime && endTime && startTime < endTime && (
-            <div className="sched-preview">
-              <span className="sched-preview-label">Preview</span>
-              {previewSlots(startTime, endTime, slotDuration).map(t => (
-                <span key={t} className="sched-slot-chip">{t}</span>
-              ))}
-            </div>
-          )}
+          {startTime && endTime && startTime < endTime && (() => {
+            const slots = previewSlots(startTime, endTime, slotDuration)
+            return (
+              <div className="sched-preview">
+                <span className="sched-preview-label">Preview — {slots.length} slot{slots.length !== 1 ? 's' : ''} available</span>
+                {slots.map(t => (
+                  <span key={t} className="sched-slot-chip">{t}</span>
+                ))}
+              </div>
+            )
+          })()}
 
           <div className="sched-actions">
             <button className="btn-save" onClick={handleSaveSchedule} disabled={saving}>
@@ -254,7 +257,7 @@ function previewSlots(start, end, duration) {
   const [eh, em] = end.split(':').map(Number)
   let minutes = sh * 60 + sm
   const endMin = eh * 60 + em
-  while (minutes + duration <= endMin && slots.length < 8) {
+  while (minutes + duration <= endMin) {
     const h = Math.floor(minutes / 60)
     const m = minutes % 60
     const ampm = h < 12 ? 'AM' : 'PM'
@@ -262,6 +265,5 @@ function previewSlots(start, end, duration) {
     slots.push(`${h12}:${String(m).padStart(2,'0')} ${ampm}`)
     minutes += duration
   }
-  if (minutes + duration <= endMin) slots.push('…')
   return slots
 }

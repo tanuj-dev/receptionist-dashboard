@@ -1,9 +1,14 @@
+import logo from '../assets/logo.png'
+
 export default function Sidebar({ businesses, selectedId, onSelect, onLogout, onAddBusiness }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-header">
-        <h1>🤖 AI Receptionist</h1>
-        <p>Admin Dashboard</p>
+        <img src={logo} alt="RingReply" />
+        <div className="sidebar-header-text">
+          <h1>RingReply</h1>
+          <p>Admin Dashboard</p>
+        </div>
       </div>
 
       <div className="sidebar-label">Businesses</div>
